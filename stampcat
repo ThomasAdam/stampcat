@@ -1,0 +1,38 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use DBI;
+use DBHandler;
+
+use Glib qw/TRUE FALSE/;
+use Gtk2 '-init';
+
+use Data::Dumper;
+
+my $window = undef;
+
+sub show_gui
+{
+	my $builder = Gtk2::Builder->new();
+	$builder->add_from_file("stampcat-glade.glade");
+
+	$window = $builder->get_object("stampcat_window");
+	$builder->connect_signals(
+		delete_event => sub { Gtk2->main_quit },
+	);
+
+	$window->show_all();
+	$builder = undef;
+
+	Gtk2->main();
+}
+
+my $db_handler = DBHandler->new();
+$db_handler->query(query => "SELECT * FROM stamps");
+
+my $stamp_data = $db_handler->results();
+
+warn Dumper $stamp_data;
+show_gui();
